@@ -1,14 +1,19 @@
-.Title-container{
+.Title-container {
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 20px;
     height: 10vh;
+    overflow: hidden; /* Prevent overflow */
 }
 
-.map-container{
+.map-container {
     height: 90vh;
 }
-.Title-container img{
-    width: 3 rem;
+
+.Title-container img {
+    max-width: 100%; /* Ensure images don't exceed container width */
+    max-height: 100%; /* Ensure images don't exceed container height */
+    height: auto; /* Maintain aspect ratio */
+    margin: 0 10px; /* Optional: spacing between images */
 }

@@ -76,6 +76,7 @@ const ShowScorePopup = () => {
 
 const MapComponent = ({ showScorePopup }) => {
     const [position, setPosition] = useState(null);
+    const [heatmapData, setHeatmapData] = useState([]);
     const [markers, setMarkers] = useState([]);
 
     useEffect(() => {
@@ -98,15 +99,17 @@ const MapComponent = ({ showScorePopup }) => {
                 return response.json();
             })
             .then(data => {
+                const heatData = data.map(item => [item.latitude, item.longitude, item.score / 10]); // Adjust score for heatmap
                 const markerData = data.map(item => ({
                     lat: item.latitude,
                     lng: item.longitude,
                     score: item.score,
                     image: item.image_data
                 }));
+                setHeatmapData(heatData);
                 setMarkers(markerData);
             })
-            .catch((error) => console.error("Error fetching marker data:", error));
+            .catch((error) => console.error("Error fetching data:", error));
     }, []);
 
     if (!position) {
@@ -119,6 +122,7 @@ const MapComponent = ({ showScorePopup }) => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
+            <HeatmapLayer points={heatmapData} />
             {markers.map((marker, index) => (
                 <Marker key={index} position={[marker.lat, marker.lng]} eventHandlers={{
                     click: () => {
@@ -135,6 +139,31 @@ const MapComponent = ({ showScorePopup }) => {
             ))}
         </MapContainer>
     );
+};
+
+const HeatmapLayer = ({ points, showScorePopup }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        if (points.length > 0) {
+            const heat = L.heatLayer(points.map(([lat, lng, score]) => [lat, lng, score]), {
+                radius: 40,
+                blur: 25,
+                maxZoom: 17,
+                gradient: {
+                    0.0: 'red',
+                    0.5: 'yellow',
+                    1.0: 'green'
+                }
+            }).addTo(map);
+
+            return () => {
+                map.removeLayer(heat);
+            };
+        }
+    }, [points, map]);
+
+    return null;
 };
 
 export default ShowScorePopup;
