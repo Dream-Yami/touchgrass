@@ -1,14 +1,22 @@
+.app-container {
+    display: flex;
+    flex-direction: column; /* Ensure content is stacked vertically */
+    height: 100vh; /* Use full viewport height */
+    margin: 0; /* Remove any default margins */
+}
+
 .Title-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 20px;
-    height: 10vh;
+    margin: 20px 0; /* Adjust margin to prevent overflow */
+    height: auto; /* Allow height to adjust based on content */
     overflow: hidden; /* Prevent overflow */
 }
 
 .map-container {
-    height: 90vh;
+    flex-grow: 1; /* Allow map-container to take remaining space */
+    height: 0; /* Prevent default height */
 }
 
 .Title-container img {
@@ -21,12 +29,11 @@
 /* Mobile adjustments */
 @media (max-width: 600px) {
     .Title-container {
-        flex-direction: column; /* Stack images vertically */
-        height: auto; /* Allow height to adjust based on content */
+        flex-direction: row; /* Stack images vertically */
     }
 
     .Title-container img {
-        max-width: 80%; /* Adjust max width for smaller screens */
+        max-width: 60%; /* Adjust max width for smaller screens */
         margin: 5px 0; /* Adjust margin for spacing */
     }
 }
