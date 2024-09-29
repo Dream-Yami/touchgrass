@@ -2,14 +2,16 @@
 import React from 'react';
 import "./title.css"
 import MapComponent from './Map';
+import logo from './assets/Photograss_Logo.png'
+import title from './assets/Photograss_title.png'
 import TakePictureButton from './TakePictureButton';
 
 function Title() {
   return (
     <div className="app-container">
         <div className='Title-container'>
-            <img src='./assets/Photograss_Logo.png' alt="logo"/>
-            <img src='./assets/Photograss_title.png' alt="title"/>
+            <img src={logo} alt="logo"/>
+            <img src={title} alt="title"/>
 
         </div>
         <div className='map-container'>
