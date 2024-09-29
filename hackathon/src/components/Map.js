@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import 'leaflet.heat';
 import './Map.css';
 
 // Fix default marker icon issue in Leaflet with Webpack
@@ -10,6 +9,7 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
+// Set default icon for markers
 let DefaultIcon = L.icon({
     iconUrl: markerIcon,
     iconRetinaUrl: markerIcon2x,
@@ -23,7 +23,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 const ScorePopup = ({ position, scores, image, onClose }) => {
     if (!position || scores.length === 0) {
-        return null;  // Don't render the popup if no position or no scores
+        return null; // Don't render the popup if no position or no scores
     }
 
     return (
@@ -54,25 +54,22 @@ const ShowScorePopup = () => {
     });
 
     const showScorePopup = (position, scores, image) => {
-        setPopupData({
-            position: position,
-            scores: scores,
-            image: image
-        });
+        setPopupData({ position, scores, image });
     };
 
     const closePopup = () => {
-        setPopupData({
-            position: null,
-            scores: [],
-            image: null
-        });
+        setPopupData({ position: null, scores: [], image: null });
     };
 
     return (
         <div>
             <MapComponent showScorePopup={showScorePopup} />
-            <ScorePopup position={popupData.position} scores={popupData.scores} image={popupData.image} onClose={closePopup} />
+            <ScorePopup 
+                position={popupData.position} 
+                scores={popupData.scores} 
+                image={popupData.image} 
+                onClose={closePopup} 
+            />
         </div>
     );
 };
@@ -138,48 +135,6 @@ const MapComponent = ({ showScorePopup }) => {
             ))}
         </MapContainer>
     );
-};
-
-
-const HeatmapLayer = ({ points, showScorePopup }) => {
-    const map = useMap();
-
-    useEffect(() => {
-        if (points.length > 0) {
-            const heat = L.heatLayer(points.map(([lat, lng, score]) => [lat, lng, score]), { 
-                radius: 40,
-                blur: 25,
-                maxZoom: 17,
-                gradient: {  
-                    0.0: 'red',
-                    0.5: 'yellow',
-                    1.0: 'green'
-                }
-            }).addTo(map);
-
-            map.on('click', (e) => {
-                const { lat, lng } = e.latlng;
-                const nearbyPoints = points.filter(([pointLat, pointLng]) => {
-                    const distance = map.distance([lat, lng], [pointLat, pointLng]);
-                    return distance < 50;
-                });
-
-                if (nearbyPoints.length > 0) {
-                    const scores = nearbyPoints.map(([lat, lng, score]) => score * 10);
-                    const image = nearbyPoints[0][3];  // Get the image from the first nearby point
-                    showScorePopup(e.latlng, scores, image);
-                } else {
-                    showScorePopup(null, [], null);
-                }
-            });
-
-            return () => {
-                map.removeLayer(heat);
-            };
-        }
-    }, [points, map, showScorePopup]);
-
-    return null;
 };
 
 export default ShowScorePopup;
