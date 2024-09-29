@@ -8,7 +8,9 @@ function Title() {
   return (
     <div className="app-container">
         <div className='Title-container'>
-            <p>test</p>
+            <img src='./assets/Photograss_Logo.png' alt="logo"/>
+            <img src='./assets/Photograss_title.png' alt="title"/>
+
         </div>
         <div className='map-container'>
             <MapComponent />
