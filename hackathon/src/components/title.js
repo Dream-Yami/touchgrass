@@ -4,7 +4,7 @@ import "./title.css"
 import MapComponent from './Map';
 import TakePictureButton from './TakePictureButton';
 
-function title() {
+function Title() {
   return (
     <div className="app-container">
         <div className='Title-container'>
@@ -18,4 +18,4 @@ function title() {
   );
 }
 
-export default title;
+export default Title;
