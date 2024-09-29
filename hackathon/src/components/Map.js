@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import 'leaflet.heat';
 import './Map.css';
 
 // Fix default marker icon issue in Leaflet with Webpack
@@ -76,8 +73,8 @@ const ShowScorePopup = () => {
 
 const MapComponent = ({ showScorePopup }) => {
     const [position, setPosition] = useState(null);
-    const [heatmapData, setHeatmapData] = useState([]);
     const [markers, setMarkers] = useState([]);
+    const [heatmapData, setHeatmapData] = useState([]);
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(
@@ -99,17 +96,18 @@ const MapComponent = ({ showScorePopup }) => {
                 return response.json();
             })
             .then(data => {
-                const heatData = data.map(item => [item.latitude, item.longitude, item.score / 10]); // Adjust score for heatmap
                 const markerData = data.map(item => ({
                     lat: item.latitude,
                     lng: item.longitude,
                     score: item.score,
                     image: item.image_data
                 }));
-                setHeatmapData(heatData);
                 setMarkers(markerData);
+
+                const heatData = data.map(item => [item.latitude, item.longitude, item.score / 10]);
+                setHeatmapData(heatData);  // Store heatmap data
             })
-            .catch((error) => console.error("Error fetching data:", error));
+            .catch((error) => console.error("Error fetching marker data:", error));
     }, []);
 
     if (!position) {
@@ -122,7 +120,6 @@ const MapComponent = ({ showScorePopup }) => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
-            <HeatmapLayer points={heatmapData} />
             {markers.map((marker, index) => (
                 <Marker key={index} position={[marker.lat, marker.lng]} eventHandlers={{
                     click: () => {
@@ -137,28 +134,30 @@ const MapComponent = ({ showScorePopup }) => {
                     </Popup>
                 </Marker>
             ))}
+            {heatmapData.length > 0 && <HeatmapLayer points={heatmapData} />}
         </MapContainer>
     );
 };
 
-const HeatmapLayer = ({ points, showScorePopup }) => {
+const HeatmapLayer = ({ points }) => {
     const map = useMap();
 
     useEffect(() => {
         if (points.length > 0) {
-            const heat = L.heatLayer(points.map(([lat, lng, score]) => [lat, lng, score]), {
-                radius: 40,
-                blur: 25,
-                maxZoom: 17,
-                gradient: {
-                    0.0: 'red',
+            // Initialize heatmap layer with better visibility and larger radius
+            const heat = L.heatLayer(points, { 
+                radius: 40,  // Increase radius for bigger size
+                blur: 25,    // Set appropriate blur to make it smooth
+                maxZoom: 17, // Make sure the heatmap displays well at higher zoom levels
+                gradient: {  // Custom gradient for color scale
+                    0.0: 'red',   // 0 - 1 is the intensity scale (red = low, green = high)
                     0.5: 'yellow',
                     1.0: 'green'
                 }
             }).addTo(map);
 
             return () => {
-                map.removeLayer(heat);
+                map.removeLayer(heat); // Clean up heatmap layer on component unmount
             };
         }
     }, [points, map]);
