@@ -17,3 +17,16 @@
     height: auto; /* Maintain aspect ratio */
     margin: 0 10px; /* Optional: spacing between images */
 }
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    .Title-container {
+        flex-direction: column; /* Stack images vertically */
+        height: auto; /* Allow height to adjust based on content */
+    }
+
+    .Title-container img {
+        max-width: 80%; /* Adjust max width for smaller screens */
+        margin: 5px 0; /* Adjust margin for spacing */
+    }
+}
